@@ -1,0 +1,25 @@
+<!--
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+-->
+
+
+<!-- Navigation. -->
+<nav>
+	<span routerLink="main" (click)="setPage('General')" [ngClass]="{dimmed: stateService.page !== 'General'}">General</span>
+	<span routerLink="main" (click)="setPage('Superchat')" [ngClass]="{dimmed: stateService.page !== 'Superchat'}">Superchat</span>
+	<span routerLink="main" (click)="setPage('Foreign')" [ngClass]="{dimmed: stateService.page !== 'Foreign'}">Foreign</span>
+	<span routerLink="main" (click)="setPage('Moderator')" [ngClass]="{dimmed: stateService.page !== 'Moderator'}">Moderator</span>
+	<span routerLink="options" (click)="setPage('Options')" [ngClass]="{dimmed: stateService.page !== 'Options'}">Options</span>
+</nav>
+
+
+<!-- Page. -->
+<div [@pageFadeAnimation]="stateService.page">
+	<router-outlet ></router-outlet>
+</div>
+
+
+<!-- Message. -->
+<chatsifter-message></chatsifter-message>

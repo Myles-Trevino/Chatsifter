@@ -1,0 +1,117 @@
+/*
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+*/
+
+
+:host
+{
+	--image-size: var(--line-height);
+	--badge-size: 1rem; /* 16px */
+	--chip-color: var(--semitransparent-color);
+}
+
+:host ::ng-deep ng-scrollbar
+{
+	width: 100vw;
+	height: var(--page-height);
+
+	&.hidden-scrollbar scrollbar-y{ display: none; }
+}
+
+#no-messages-overlay
+{
+	position: fixed;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100vw;
+	height: var(--page-height);
+	background-color: var(--main-color);
+}
+
+#messages-container
+{
+	display: flex;
+	flex-direction: column;
+	gap: var(--small-gap);
+}
+
+.message
+{
+	display: flex;
+	align-items: center;
+	gap: var(--small-gap);
+	padding: var(--small-gap);
+	background-color: var(--tile-color);
+	border-radius: var(--medium-radius);
+}
+
+img
+{
+	width: var(--image-size);
+	height: var(--image-size);
+	vertical-align: middle;
+}
+
+.badge
+{
+	width: var(--badge-size);
+	height: var(--badge-size);
+	margin-bottom: 0.15rem;
+}
+
+.author-photo{ border-radius: calc(var(--image-size) / 2); }
+
+.chip
+{
+	margin-right: var(--small-gap);
+	padding: 0.1rem 0.3rem;
+	border-radius: var(--small-radius);
+	color: var(--chip-color);
+	box-shadow: 0 0 0 var(--thin-line-width) var(--chip-color);
+}
+
+.message-content
+{
+	margin-left: 0.15rem;
+	word-break: break-all;
+
+	.emote, .text{ margin: 0 0.1rem; }
+}
+
+.text
+{
+	user-select: text;
+	word-break: break-word;
+}
+
+button
+{
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	height: var(--line-height);
+	padding: 0 var(--small-gap);
+	border-radius: var(--large-radius);
+	background-color: var(--semitransparent-color);
+	color: var(--main-color);
+	transition: background-color var(--regular-transition-duration);
+
+	&:hover{ background-color: var(--semitransparent-color-alternate); }
+}
+
+.verified{ --chip-color: var(--verified-color); }
+.member{ --chip-color: var(--member-color); }
+.moderator{ --chip-color: var(--moderator-color); }
+.owner{ --chip-color: var(--owner-color); }
+.membership{ background-color: var(--member-color); }
+
+.superchat, .membership
+{
+	--chip-color: var(--main-color);
+	.text{ color: var(--main-color); }
+}
+
+.translate-button-spacer{ padding-left: var(--small-gap); }

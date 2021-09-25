@@ -1,0 +1,59 @@
+{
+	"author": {
+		"name": "Laventh",
+		"email": "support@laventh.com"
+	},
+	"name": "chatsifter",
+	"productName": "Chatsifter",
+	"version": "1.0.0",
+	"description": "Sift and translate YouTube chat.",
+	"license": "Apache-2.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Myles-Trevino/Chatsifter"
+	},
+	"private": true,
+	"scripts": {
+		"build-debug": "ng build --configuration development",
+		"build": "ng build",
+		"lint": "ng lint"
+	},
+	"dependencies": {
+		"@angular/animations": "~12.2.0",
+		"@angular/cdk": "^12.2.6",
+		"@angular/common": "~12.2.0",
+		"@angular/compiler": "~12.2.0",
+		"@angular/core": "~12.2.0",
+		"@angular/forms": "~12.2.0",
+		"@angular/platform-browser": "~12.2.0",
+		"@angular/platform-browser-dynamic": "~12.2.0",
+		"@angular/router": "~12.2.0",
+		"ngx-scrollbar": "^8.0.0",
+		"object-hash": "^2.2.0",
+		"rxjs": "^7.3.0",
+		"tslib": "^2.3.0",
+		"webextension-polyfill": "^0.8.0",
+		"zone.js": "~0.11.4"
+	},
+	"devDependencies": {
+		"@angular-builders/custom-webpack": "^12.1.2",
+		"@angular-devkit/build-angular": "~12.2.5",
+		"@angular-eslint/builder": "^12.4.1",
+		"@angular-eslint/eslint-plugin": "^12.4.1",
+		"@angular-eslint/eslint-plugin-template": "^12.4.1",
+		"@angular-eslint/schematics": "^12.4.1",
+		"@angular-eslint/template-parser": "^12.4.1",
+		"@angular/cli": "~12.2.5",
+		"@angular/compiler-cli": "~12.2.0",
+		"@types/node": "^12.11.1",
+		"@types/object-hash": "^2.2.1",
+		"@types/webextension-polyfill": "^0.8.0",
+		"@typescript-eslint/eslint-plugin": "^4.31.1",
+		"@typescript-eslint/parser": "^4.31.1",
+		"eslint": "^7.32.0",
+		"eslint-plugin-import": "^2.24.2",
+		"eslint-plugin-jsdoc": "^36.1.0",
+		"eslint-plugin-prefer-arrow": "^1.2.3",
+		"typescript": "~4.3.5"
+	}
+}

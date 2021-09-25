@@ -1,0 +1,16 @@
+/*
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+*/
+
+nav
+{
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+	height: var(--navbar-height);
+	background-color: var(--main-color);
+
+	span{ cursor: pointer; }
+}

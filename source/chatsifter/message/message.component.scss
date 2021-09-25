@@ -1,0 +1,74 @@
+/*
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+*/
+
+
+:host
+{
+	pointer-events: none;
+	z-index: 4;
+	position: fixed;
+	bottom: var(--large-gap);
+	right: var(--large-gap);
+	width: calc(25rem - var(--large-gap) * 2);
+	max-width: 100%;
+
+	@media only screen and (max-width: 25rem)
+	{
+		bottom: var(--small-gap);
+		right: var(--small-gap);
+		width: calc(100% - var(--small-gap) * 2);
+	}
+}
+
+
+#message
+{
+	display: grid;
+	grid-template-columns: auto min-content;
+	gap: var(--small-gap);
+	align-items: center;
+	padding: var(--small-gap);
+	border-radius: var(--small-radius);
+	opacity: 0;
+	transition: opacity var(--regular-transition-duration);
+
+	span
+	{
+		user-select: text;
+		overflow: hidden;
+		overflow-wrap: break-word;
+	}
+
+	button
+	{
+		cursor: pointer;
+		transition: none;
+		border-radius: var(--medium-radius);
+		padding: 0 var(--small-gap);
+		background-color: var(--semitransparent-color);
+		color: var(--main-color);
+
+		&:hover{ background-color: var(--semitransparent-color-alternate) }
+	}
+
+	&.message-visible
+	{
+		pointer-events: all;
+		opacity: 1;
+
+		button{ transition: background-color var(--regular-transition-duration); }
+	}
+}
+
+
+.message-normal{ background-color: var(--message-color); }
+
+
+.message-error
+{
+	background-color: var(--error-color);
+	span{ color: var(--main-color); }
+}

@@ -1,0 +1,65 @@
+<!--
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+-->
+
+
+<!-- No messages. -->
+<div *ngIf="!chatMessages.length" id="no-messages-overlay">
+	<span>No {{stateService.page === 'General' ? '' : stateService.page+' '}}Messages</span>
+</div>
+
+<!-- Messages. -->
+<ng-scrollbar [ngClass]="{'hidden-scrollbar': !stateService.savedState.showScrollbar}" #scrollbar>
+<div id="messages-container">
+	<div *ngFor="let chatMessage of chatMessages; trackBy: messageTrackBy" [class]="{'message': true, 'membership': chatMessage.type === 'Membership', 'superchat': chatMessage.type === 'Superchat', 'member': chatMessage.isMember, 'verified': chatMessage.isVerified, 'moderator': chatMessage.isModerator, 'owner': chatMessage.isOwner}" [style]="{'background-color': chatMessage.type === 'Superchat' ? chatMessage.superchatColor : false}" @fadeInAnimation>
+
+		<!-- Author photo. -->
+		<img class="author-photo" [src]="chatMessage.authorPhoto">
+
+		<!-- Content. -->
+		<div class="message-content">
+
+			<!-- Author chip. -->
+			<span class="chip">
+
+				<!-- Author name. -->
+				{{chatMessage.authorName}}
+
+				<!-- Member badge. -->
+				<img *ngIf="chatMessage.isMember" [src]="chatMessage.memberBadge" class="badge">
+
+				<!-- Verified badge. -->
+				<span *ngIf="chatMessage.isVerified"> ✓</span>
+
+			</span>
+
+			<!-- Moderator chip. -->
+			<span *ngIf="chatMessage.isModerator" class="chip">Mod</span>
+
+			<!-- Membership chip. -->
+			<span *ngIf="chatMessage.type === 'Membership'" class="chip">{{chatMessage.membershipDuration}}</span>
+
+			<!-- Superchat chip. -->
+			<span *ngIf="chatMessage.type === 'Superchat'" class="chip">{{chatMessage.superchatAmount}}</span>
+
+			<!-- Message. -->
+			<span *ngIf="chatMessage.translationStatus === 'Translating'" class="text">Translating...</span>
+
+			<ng-container *ngIf="chatMessage.translationStatus !== 'Translating'">
+			<ng-container *ngFor="let token of chatMessage.tokens; trackBy: tokenTrackBy">
+				<img *ngIf="token.type === 'Image'" class="emote" [src]="token.url">
+				<span *ngIf="token.type === 'Text'" class="text">{{chatMessage.showTranslation ? token.translatedText : token.text}}</span>
+			</ng-container>
+			</ng-container>
+
+			<!-- Translate button. -->
+			<span *ngIf="chatMessage.isForeign" class="translate-button-spacer"></span>
+			<button *ngIf="chatMessage.isForeign" (click)="translate(chatMessage)">{{chatMessage.showTranslation ? 'Original' : 'Translate'}}</button>
+
+		</div>
+
+	</div>
+</div>
+</ng-scrollbar>

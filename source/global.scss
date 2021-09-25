@@ -1,0 +1,109 @@
+/*
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+*/
+
+
+/* Variables. */
+:root
+{
+	/* Sizes. */
+	--button-height: 2rem;
+	--navbar-height: 2.5rem;
+	--page-height: calc(100vh - var(--navbar-height));
+	--line-height: 1.5rem; /* 24px */
+
+	--small-gap: 0.5rem;
+	--medium-gap: 1rem;
+	--large-gap: 2rem;
+
+	--small-radius: 0.2rem;
+	--medium-radius: 0.5rem;
+	--large-radius: 1rem;
+
+	--thin-line-width: 0.08rem;
+	--line-width: 0.11rem;
+
+	/* Durations. */
+	--regular-transition-duration: 0.17s;
+	--medium-transition-duration: 0.34s;
+	--long-transition-duration: 0.67s;
+
+	/* Colors. */
+	--main-color: rgb(0, 0, 0);
+	--tile-color: rgb(20, 20, 20);
+	--semitransparent-color: rgb(255, 255, 255, 0.5);
+	--semitransparent-color-alternate: rgb(255, 255, 255, 0.75);
+	--message-color: rgb(53, 53, 53);
+	--member-color: rgb(15, 157, 88);
+	--verified-color: rgb(255, 255, 255);
+	--moderator-color: rgb(58, 166, 255);
+	--owner-color: rgb(255, 214, 0);
+	--scrollbar-color: rgb(255, 255, 255, 0.75);
+	--text-color: rgb(255, 255, 255);
+	--error-color: rgb(230, 33, 23);
+}
+
+
+/* Fonts. */
+@font-face
+{
+	font-family: "Roboto Regular";
+	src: url("assets/fonts/roboto-regular.ttf");
+}
+
+
+/* Text elements. */
+span, a, div, button, input
+{
+	font-family: "Roboto Regular";
+	color: var(--text-color);
+	font-size: 1rem;
+	line-height: 2rem;
+}
+
+a
+{
+	text-decoration-color: var(--semitransparent-color);
+	transition: text-decoration-color var(--regular-transition-duration);
+
+	&:hover { text-decoration-color: var(--text-color); }
+}
+
+
+/* General. */
+*
+{
+	-webkit-tap-highlight-color: transparent;
+	-webkit-appearance: none;
+	user-select: none;
+	box-sizing: border-box;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	outline: none;
+}
+
+html{ background-color: var(--main-color); }
+
+:root{ @media only screen and (max-width: 23rem){ font-size: 4.25vw; } }
+
+::selection
+{
+	background-color: var(--semitransparent-color);
+	border-radius: var(--small-radius);
+}
+
+ng-scrollbar
+{
+	--scrollbar-padding: var(--small-gap) !important;
+	--scrollbar-size: var(--small-gap) !important;
+	--scrollbar-thumb-color: var(--scrollbar-color) !important;
+	--scrollbar-thumb-transition: none !important;
+	--scrollbar-track-transition: none !important;
+}
+
+
+/* Classes. */
+.dimmed{ opacity: 0.5; }

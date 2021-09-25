@@ -1,0 +1,34 @@
+<!--
+	Copyright Myles Trevino
+	Licensed under the Apache License, Version 2.0
+	http://www.apache.org/licenses/LICENSE-2.0
+-->
+
+
+<!-- DeepL authentication key. -->
+<div class="tile">
+	<p>To enable translation, create a free <a [href]="constants.deepLProUrl">DeepL Pro</a> account and enter your authentication key below.</p>
+
+	<input type="text" [(ngModel)]="stateService.savedState.deepLAuthenticationKey" (ngModelChange)="stateService.save()">
+</div>
+
+
+<!-- Show scrollbar. -->
+<div id="options-laventh-tile" class="tile">
+	<span>Show Scrollbar</span>
+	<chatsifter-switch [(state)]="stateService.savedState.showScrollbar" (stateChange)="stateService.save()"></chatsifter-switch>
+</div>
+
+
+<!-- Smooth scrolling. -->
+<div id="options-laventh-tile" class="tile">
+	<span>Smooth Scrolling</span>
+	<chatsifter-switch [(state)]="stateService.savedState.smoothScroll" (stateChange)="stateService.save()"></chatsifter-switch>
+</div>
+
+
+<!-- Developed by Laventh. -->
+<div id="options-laventh-tile" class="tile">
+	<span>Developed by <a [href]="constants.laventhUrl">Laventh</a></span>
+	<span>{{'Version '+constants.version}}</span>
+</div>
