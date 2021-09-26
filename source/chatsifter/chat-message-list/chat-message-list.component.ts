@@ -52,7 +52,7 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 	}
 
 
-	// After view initializer.
+	// Initializes the scrollbar.
 	public ngAfterViewInit(): void
 	{
 		if(!this.scrollbar) throw new Error('Could not get the scrollbar.');

@@ -5,11 +5,11 @@
 */
 
 
-export const version = '1.0.0';
+export const version = '1.2.0';
 export const maximumInitializationAttempts = 10;
-export const maximumChatMessages = 128;
-export const scrollDelay = 67;
-export const autoscrollMargin = 200;
+export const maximumChatMessages = 256;
+export const scrollDelay = 0.16;
+export const autoscrollMargin = 10;
 
 export const deepLApiUrl = 'https://api-free.deepl.com/v2/translate';
 export const deepLProUrl = 'https://www.deepl.com/pro';

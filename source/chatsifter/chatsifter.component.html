@@ -8,9 +8,10 @@
 <!-- Navigation. -->
 <nav>
 	<span routerLink="main" (click)="setPage('General')" [ngClass]="{dimmed: stateService.page !== 'General'}">General</span>
-	<span routerLink="main" (click)="setPage('Superchat')" [ngClass]="{dimmed: stateService.page !== 'Superchat'}">Superchat</span>
-	<span routerLink="main" (click)="setPage('Foreign')" [ngClass]="{dimmed: stateService.page !== 'Foreign'}">Foreign</span>
+	<span routerLink="main" (click)="setPage('Superchat')" [ngClass]="{dimmed: stateService.page !== 'Superchat'}">SC</span>
 	<span routerLink="main" (click)="setPage('Moderator')" [ngClass]="{dimmed: stateService.page !== 'Moderator'}">Moderator</span>
+	<span routerLink="main" (click)="setPage('Foreign')" [ngClass]="{dimmed: stateService.page !== 'Foreign'}">JP</span>
+	<span routerLink="main" (click)="setPage('Custom')" [ngClass]="{dimmed: stateService.page !== 'Custom'}">Custom</span>
 	<span routerLink="options" (click)="setPage('Options')" [ngClass]="{dimmed: stateService.page !== 'Options'}">Options</span>
 </nav>
 

@@ -31,6 +31,7 @@ export class StateService
 	private superchatMessageIndicies: number[] = [];
 	private moderatorChatMessageIndicies: number[] = [];
 	private foreignChatMessageIndicies: number[] = [];
+	private customChatMessageIndicies: number[] = [];
 
 
 	// Initializer.
@@ -62,7 +63,7 @@ export class StateService
 			this.chatMessages.set(this.index, chatMessage);
 
 			// Add the chat message index to the appropriate arrays.
-			this.addChatMessageIndex(this.generalChatMessageIndicies);
+			this.addChatMessageIndex(this.generalChatMessageIndicies, true);
 			if(this.page === 'General') this.updateSubject.next();
 
 			if(chatMessage.type !== 'Default')
@@ -79,8 +80,14 @@ export class StateService
 
 			if(chatMessage.isForeign)
 			{
-				this.addChatMessageIndex(this.foreignChatMessageIndicies);
+				this.addChatMessageIndex(this.foreignChatMessageIndicies, true);
 				if(this.page === 'Foreign') this.updateSubject.next();
+			}
+
+			if(this.containsCustomQuery(chatMessage))
+			{
+				this.addChatMessageIndex(this.customChatMessageIndicies, true);
+				if(this.page === 'Custom') this.updateSubject.next();
 			}
 
 			++this.index;
@@ -122,6 +129,7 @@ export class StateService
 		this.superchatMessageIndicies = [];
 		this.moderatorChatMessageIndicies = [];
 		this.foreignChatMessageIndicies = [];
+		this.customChatMessageIndicies = [];
 
 		this.updateSubject.next();
 	}
@@ -138,13 +146,16 @@ export class StateService
 
 	// Adds the chat message index to the given chat message index array, limiting
 	// its size and removing chat messages with no references.
-	private addChatMessageIndex(chatMessageIndexArray: number[]): void
+	private addChatMessageIndex(chatMessageIndexArray: number[], limit = false): void
 	{
 		// Increment the chat message's reference counter and
 		// push the chat message index onto the given array.
 		const chatMessage = this.getChatMessage(this.index);
 		++chatMessage.references;
 		chatMessageIndexArray.push(this.index);
+
+		// If length limiting is enabled...
+		if(!limit) return;
 
 		// While the array is larger than the maximum allowed number of chat messages...
 		while(chatMessageIndexArray.length > Constants.maximumChatMessages)
@@ -173,7 +184,36 @@ export class StateService
 			case 'Superchat': return this.superchatMessageIndicies;
 			case 'Foreign': return this.foreignChatMessageIndicies;
 			case 'Moderator': return this.moderatorChatMessageIndicies;
+			case 'Custom': return this.customChatMessageIndicies;
 			default: return [];
 		}
+	}
+
+
+	// Checks if the chat message contains the custom query.
+	private containsCustomQuery(chatMessage: Types.ChatMessage): boolean
+	{
+		// Generate the regex.
+		let regex: RegExp | undefined = undefined;
+
+		if(this.savedState.regexCustomQuery)
+		{
+			try{ regex = new RegExp(this.savedState.customQuery); }
+			catch(error: unknown){}
+		}
+
+		// For each token in the chat message...
+		for(const token of chatMessage.tokens)
+		{
+			if(!token.text) continue;
+
+			// Regex query.
+			if(regex){ if(regex.test(token.text)) return true; }
+
+			// Regular query.
+			if(token.text.includes(this.savedState.customQuery)) return true;
+		}
+
+		return false;
 	}
 }

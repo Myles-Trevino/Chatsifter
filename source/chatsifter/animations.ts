@@ -14,7 +14,7 @@ import * as Constants from './constants';
 export const pageFadeAnimation = trigger
 (
 	'pageFadeAnimation', [transition('* => *', [style({opacity: 0}),
-		animate(`0.17s ${Constants.scrollDelay}ms`, style({opacity: 1}))])]
+		animate(`0.16s ${Constants.scrollDelay}s`, style({opacity: 1}))])]
 );
 
 
@@ -22,5 +22,5 @@ export const pageFadeAnimation = trigger
 export const fadeInAnimation = trigger
 (
 	'fadeInAnimation', [transition(':enter', [style({opacity: 0}),
-		animate(`0.17s`, style({opacity: 1}))])]
+		animate(`0.08s`, style({opacity: 1}))])]
 );

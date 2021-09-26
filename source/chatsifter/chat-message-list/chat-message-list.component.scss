@@ -15,19 +15,18 @@
 :host ::ng-deep ng-scrollbar
 {
 	width: 100vw;
-	height: var(--page-height);
+	height: 100%;
 
 	&.hidden-scrollbar scrollbar-y{ display: none; }
 }
 
 #no-messages-overlay
 {
-	position: fixed;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	width: 100vw;
-	height: var(--page-height);
+	height: 100%;
 	background-color: var(--main-color);
 }
 

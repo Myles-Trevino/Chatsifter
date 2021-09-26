@@ -11,7 +11,7 @@
 </div>
 
 <!-- Messages. -->
-<ng-scrollbar [ngClass]="{'hidden-scrollbar': !stateService.savedState.showScrollbar}" #scrollbar>
+<ng-scrollbar [ngClass]="{'hidden-scrollbar': !stateService.savedState.showScrollbar}" [ngStyle]="{'height': chatMessages.length ? '100%' : '0'}" #scrollbar>
 <div id="messages-container">
 	<div *ngFor="let chatMessage of chatMessages; trackBy: messageTrackBy" [class]="{'message': true, 'membership': chatMessage.type === 'Membership', 'superchat': chatMessage.type === 'Superchat', 'member': chatMessage.isMember, 'verified': chatMessage.isVerified, 'moderator': chatMessage.isModerator, 'owner': chatMessage.isOwner}" [style]="{'background-color': chatMessage.type === 'Superchat' ? chatMessage.superchatColor : false}" @fadeInAnimation>
 

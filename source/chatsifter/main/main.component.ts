@@ -13,7 +13,8 @@ import {StateService} from '../services/state.service';
 @Component
 ({
 	selector: 'chatsifter-main',
-	templateUrl: './main.component.html'
+	templateUrl: './main.component.html',
+	styleUrls: ['./main.component.scss']
 })
 
 export class MainComponent

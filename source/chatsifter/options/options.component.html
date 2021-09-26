@@ -27,6 +27,13 @@
 </div>
 
 
+<!-- Regex custom sifting. -->
+<div id="options-laventh-tile" class="tile">
+	<span>Regex Custom Sifting</span>
+	<chatsifter-switch [(state)]="stateService.savedState.regexCustomQuery" (stateChange)="stateService.save()"></chatsifter-switch>
+</div>
+
+
 <!-- Developed by Laventh. -->
 <div id="options-laventh-tile" class="tile">
 	<span>Developed by <a [href]="constants.laventhUrl">Laventh</a></span>

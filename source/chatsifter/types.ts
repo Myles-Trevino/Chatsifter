@@ -8,6 +8,8 @@
 // Saved state.
 export type SavedState =
 {
+	customQuery: string;
+	regexCustomQuery: boolean;
 	deepLAuthenticationKey: string;
 	showScrollbar: boolean;
 	smoothScroll: boolean;
@@ -15,6 +17,8 @@ export type SavedState =
 
 export const defaultSavedState: SavedState =
 {
+	customQuery: '[EN]',
+	regexCustomQuery: false,
 	deepLAuthenticationKey: '',
 	showScrollbar: true,
 	smoothScroll: true
@@ -70,7 +74,9 @@ export type ChatMessage =
 
 
 // Pages.
-export type Page = 'General' | 'Superchat' | 'Foreign' | 'Moderator' | 'Options';
+export type Page = 'General' | 'Superchat' |
+'Foreign' | 'Moderator' | 'Custom' | 'Options';
+
 export const defaultPage: Page = 'General';
 
 

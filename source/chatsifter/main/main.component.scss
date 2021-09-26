@@ -5,16 +5,11 @@
 */
 
 
-:host
+#main-container
 {
 	display: grid;
 	grid-gap: var(--small-gap);
-}
+	height: var(--page-height);
 
-
-#options-laventh-tile
-{
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+	&.customPage{ grid-template-rows: min-content auto; }
 }

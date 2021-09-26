@@ -5,5 +5,15 @@
 -->
 
 
-<!-- Chat. -->
-<chatsifter-chat-message-list></chatsifter-chat-message-list>
+<div id="main-container" [class]="stateService.page.toLowerCase()+'Page'">
+
+	<!-- Custom query input. -->
+	<div *ngIf="stateService.page === 'Custom'" class="tile">
+		<input type="text" [(ngModel)]="stateService.savedState.customQuery" (ngModelChange)="stateService.save()">
+	</div>
+
+
+	<!-- Chat. -->
+	<chatsifter-chat-message-list></chatsifter-chat-message-list>
+
+</div>
