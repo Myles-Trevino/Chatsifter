@@ -7,7 +7,7 @@
 
 <!-- DeepL authentication key. -->
 <div class="tile">
-	<p>To enable translation, create a free <a [href]="constants.deepLProUrl">DeepL Pro</a> account and enter your authentication key below.</p>
+	<p>To enable translation, create a free <a [href]="constants.deepLProUrl" target="_blank">DeepL Pro</a> account and enter your authentication key below.</p>
 
 	<input type="text" [(ngModel)]="stateService.savedState.deepLAuthenticationKey" (ngModelChange)="stateService.save()">
 </div>
@@ -36,6 +36,6 @@
 
 <!-- Developed by Laventh. -->
 <div id="options-laventh-tile" class="tile">
-	<span>Developed by <a [href]="constants.laventhUrl">Laventh</a></span>
-	<span>{{'Version '+constants.version}}</span>
+	<span>Developed by <a [href]="constants.laventhUrl" target="_blank">Laventh</a></span>
+	<a [href]="constants.githubUrl" target="_blank">{{'Version '+constants.version}}</a>
 </div>

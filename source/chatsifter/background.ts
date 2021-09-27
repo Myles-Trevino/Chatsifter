@@ -38,6 +38,8 @@ async function urlUpdateCallback(tabId: number): Promise<void>
 // Open the popup when the extension icon is clicked.
 Browser.browserAction.onClicked.addListener(() =>
 {
+	if(extensionPort) return;
+
 	Browser.windows.create
 	({
 		url: 'index.html',

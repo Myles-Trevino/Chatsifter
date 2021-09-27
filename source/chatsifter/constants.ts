@@ -5,7 +5,7 @@
 */
 
 
-export const version = '1.2.0';
+export const version = '1.2.1';
 export const maximumInitializationAttempts = 10;
 export const maximumChatMessages = 256;
 export const scrollDelay = 0.16;
@@ -14,6 +14,7 @@ export const autoscrollMargin = 10;
 export const deepLApiUrl = 'https://api-free.deepl.com/v2/translate';
 export const deepLProUrl = 'https://www.deepl.com/pro';
 export const laventhUrl = 'https://laventh.com';
+export const githubUrl = 'https://github.com/Myles-Trevino/Chatsifter';
 
 export const chatFrameTag = 'ytd-live-chat-frame';
 export const defaultChatMessageTag = 'yt-live-chat-text-message-renderer';

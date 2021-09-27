@@ -117,7 +117,11 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 			// Add each text token as a URL parameter.
 			for(const token of message.tokens)
 				if(token.type === 'Text' && token.text)
-					parameters = parameters.append('text', token.text);
+				{
+					// Reduce multiple 'w' into one (JP translation).
+					const text = token.text.replaceAll(/w{2+}/g, 'w');
+					parameters = parameters.append('text', text);
+				}
 
 			// Send the translation request to DeepL.
 			const response = await Rxjs.firstValueFrom(

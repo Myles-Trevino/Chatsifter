@@ -5,7 +5,7 @@
 	},
 	"name": "chatsifter",
 	"productName": "Chatsifter",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Sift and translate YouTube chat.",
 	"license": "Apache-2.0",
 	"repository": {
