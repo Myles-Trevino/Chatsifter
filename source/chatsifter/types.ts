@@ -25,13 +25,23 @@ export const defaultSavedState: SavedState =
 };
 
 
-// Message.
-export type MessageType = 'Normal' | 'Error';
+// IPC message.
+export type IpcMessageType = 'Reset' | 'Orphaned' | 'Title' | 'Chat Message';
 
-export type Message =
+export type IpcMessage =
+{
+	type: IpcMessageType;
+	data?: unknown;
+};
+
+
+// UI Message.
+export type UiMessageType = 'Normal' | 'Error';
+
+export type UiMessage =
 {
 	message: string;
-	type: MessageType;
+	type: UiMessageType;
 	duration: number;
 };
 

@@ -14,7 +14,8 @@ import * as Constants from './constants';
 let contentPort: Browser.Runtime.Port | undefined = undefined;
 let initializing = false;
 let initializationAttempts = 1;
-let chatContentsMutationObserver: MutationObserver | undefined = undefined;
+let iframeDocumentMutationObserver: MutationObserver | undefined = undefined;
+let latestChatElement: HTMLElement | undefined = undefined;
 
 
 // Inject the content script.
@@ -32,6 +33,7 @@ function inject(): void
 
 	document.body.appendChild(document.createElement(injectionTag));
 	console.log('Chatsifter: Content script injected.');
+
 
 	// Establish a message connection to the background script.
 	contentPort = Browser.runtime.connect({name: Constants.contentPortName});
@@ -83,8 +85,7 @@ function initialize(reset = false): void
 
 	// Iframe querying can be unpredictable, so reattempt on failure.
 	console.log(`Chatsifter: Initialization attempt ${initializationAttempts}.`);
-
-	let chatContentsElement: Element | null = null;
+	let chatIframeDocument: Document | undefined = undefined;
 
 	try
 	{
@@ -92,17 +93,28 @@ function initialize(reset = false): void
 		const chatIframeElement =
 			document.getElementById('chatframe') as HTMLIFrameElement | null;
 
-		if(!chatIframeElement) throw new Error('Could not get the chat element.');
+		if(!chatIframeElement) throw new Error('Could not get the chat iframe.');
 
 		// Get the iframe document.
-		const chatIframeDocument = chatIframeElement.contentWindow?.document;
+		chatIframeDocument = chatIframeElement.contentWindow?.document;
 		if(!chatIframeDocument) throw new Error('Could not get the chat iframe document.');
 
-		// Get the chat contents element.
-		chatContentsElement = chatIframeDocument.querySelector('#chat-messages #contents');
+		// Send the reset message if appropriate.
+		if(reset)
+		{
+			const message: Types.IpcMessage = {type: 'Reset'};
+			contentPort?.postMessage(message);
+		}
 
-		if(!chatContentsElement)
-			throw new Error('Could not get the chat contents element.');
+		// Parse the initial chat messages, requiring at least one.
+		const existingChatMessageElements =
+		chatIframeDocument.querySelectorAll('#chat #items > *');
+
+		if(existingChatMessageElements.length < 1)
+			throw new Error('Could not find any existing chat messages.');
+
+		for(const chatMessageElement of existingChatMessageElements)
+			parseChatMessage(chatMessageElement as HTMLElement);
 	}
 
 	// Handle exceptions.
@@ -127,22 +139,12 @@ function initialize(reset = false): void
 		return;
 	}
 
-	// Send the reset message.
-	if(reset) contentPort?.postMessage(undefined);
-
-	// Parse the initial chat messages.
-	const existingChatMessageElements =
-		chatContentsElement.querySelectorAll('#items > *');
-
-	for(const chatMessageElement of existingChatMessageElements)
-		parseChatMessage(chatMessageElement as HTMLElement);
-
 	// Observe changes to the chat items element.
-	if(chatContentsMutationObserver) chatContentsMutationObserver.disconnect();
-	chatContentsMutationObserver = new MutationObserver(chatContentsMutationCallback);
+	if(iframeDocumentMutationObserver) iframeDocumentMutationObserver.disconnect();
+	iframeDocumentMutationObserver = new MutationObserver(chatContentsMutationCallback);
 
-	chatContentsMutationObserver.observe(
-		chatContentsElement, {childList: true, subtree: true});
+	iframeDocumentMutationObserver.observe(
+		chatIframeDocument, {childList: true, subtree: true});
 
 	console.log('Chatsifter: Successfully initialized.');
 	initializing = false;
@@ -155,13 +157,25 @@ function chatContentsMutationCallback(mutationsList: MutationRecord[]): void
 	// For each mutation...
 	for(const mutation of mutationsList)
 	{
-		// Only handle node additions (new chat messages).
 		if(mutation.type !== 'childList') continue;
-		const newNodes = mutation.addedNodes;
-		if(!newNodes.length) continue;
+
+		// Handle chat resets due to type changes or seeking.
+		for(const node of mutation.removedNodes)
+		{
+			if(node.nodeType !== Node.ELEMENT_NODE) continue;
+			const htmlElement = (node as HTMLElement);
+
+			if(htmlElement.id === 'content' || // Deleted when changing the chat type.
+				htmlElement.id === latestChatElement?.id) // Deleted when seeking.
+			{
+				reinitialize(true);
+				return;
+			}
+		}
+
 
 		// Parse each new chat message.
-		for(const node of newNodes)
+		for(const node of mutation.addedNodes)
 			if(node.nodeType === Node.ELEMENT_NODE)
 				parseChatMessage(node as HTMLElement);
 	}
@@ -183,6 +197,9 @@ function parseChatMessage(htmlElement: HTMLElement): void
 			case Constants.superchatMessageTag: type = 'Superchat'; break;
 			default: return;
 		}
+
+		// Update the latest chat element.
+		latestChatElement = htmlElement;
 
 		// If it is a superchat...
 		let superchatColor = 'rgba(0, 0, 0, 0)';
@@ -279,7 +296,9 @@ function parseChatMessage(htmlElement: HTMLElement): void
 			tokens, translationStatus: 'Untranslated', showTranslation: false, isForeign};
 
 		if(!contentPort) throw new Error('The content port has not been initialized.');
-		contentPort.postMessage(chatMessage);
+
+		const message: Types.IpcMessage = {type: 'Chat Message', data: chatMessage};
+		contentPort.postMessage(message);
 	}
 
 	// Handle exceptions.

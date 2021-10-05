@@ -16,7 +16,7 @@ import {NgScrollbarModule} from 'ngx-scrollbar';
 
 import {RoutingModule} from './routing.module';
 import {ChatsifterComponent} from './chatsifter.component';
-import {MessageComponent} from './message/message.component';
+import {UiMessageComponent} from './ui-message/ui-message.component';
 import {ChatMessageListComponent} from './chat-message-list/chat-message-list.component';
 import {MainComponent} from './main/main.component';
 import {OptionsComponent} from './options/options.component';
@@ -28,7 +28,7 @@ import {SwitchComponent} from './switch/switch.component';
 	declarations:
 	[
 		ChatsifterComponent,
-		MessageComponent,
+		UiMessageComponent,
 		ChatMessageListComponent,
 		MainComponent,
 		OptionsComponent,

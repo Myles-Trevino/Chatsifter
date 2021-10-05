@@ -5,12 +5,29 @@
 */
 
 
+#chatsifter-title
+{
+	display: flex;
+	align-items: center;
+	padding: 0 var(--medium-gap);
+	height: var(--title-and-navbar-height);
+	background-color: var(--tile-color);
+
+	span
+	{
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+
 nav
 {
 	display: flex;
 	justify-content: space-evenly;
 	align-items: center;
-	height: var(--navbar-height);
+	height: var(--title-and-navbar-height);
 	background-color: var(--main-color);
 
 	span{ cursor: pointer; }

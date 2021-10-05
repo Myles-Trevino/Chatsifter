@@ -10,8 +10,8 @@
 {
 	/* Sizes. */
 	--button-height: 2rem;
-	--navbar-height: 2.5rem;
-	--page-height: calc(100vh - var(--navbar-height));
+	--title-and-navbar-height: 2.5rem;
+	--page-height: calc(100vh - var(--title-and-navbar-height) * 2);
 	--line-height: 1.5rem; /* 24px */
 
 	--small-gap: 0.5rem;

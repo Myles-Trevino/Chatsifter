@@ -25,7 +25,7 @@
 			<span class="chip">
 
 				<!-- Author name. -->
-				{{chatMessage.authorName}}
+				{{chatMessage.authorName.substr(0, constants.maximumAuthorNameLength) + (chatMessage.authorName.length > constants.maximumAuthorNameLength ? '...' : '')}}
 
 				<!-- Member badge. -->
 				<img *ngIf="chatMessage.isMember" [src]="chatMessage.memberBadge" class="badge">

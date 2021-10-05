@@ -13,9 +13,9 @@ import type * as Types from '../types';
 
 @Injectable({providedIn: 'root'})
 
-export class MessageService
+export class UiMessageService
 {
-	public readonly messages = new Subject<Types.Message>();
+	public readonly messages = new Subject<Types.UiMessage>();
 
 
 	// Sends a normal message.

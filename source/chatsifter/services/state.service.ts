@@ -21,6 +21,7 @@ export class StateService
 {
 	public updateSubject: Subject<void> = new Subject();
 	public pageSubject: Subject<Types.Page> = new Subject();
+	public boundTabTitleSubject: Subject<string> = new Subject();
 	public page = Types.defaultPage;
 	public savedState: Types.SavedState = Types.defaultSavedState;
 
@@ -35,62 +36,29 @@ export class StateService
 
 
 	// Initializer.
-	public initialize(): void
+	public initialize(boundTabId: number, boundTabTitle: string): void
 	{
+		console.log('Bound to tab:', boundTabId, boundTabTitle);
+		this.boundTabTitleSubject.next(boundTabTitle);
+
 		// Load the saved state.
 		const savedState = localStorage.getItem(Constants.savedStateKey);
 		if(savedState) this.savedState = JSON.parse(savedState) as Types.SavedState;
 
-		// Listen for state updates.
-		const contentPort = Browser.runtime.connect({name: Constants.extensionPortName});
+		// Listen for state updates forwarded by the background
+		// script from the content script of the bound tab.
+		const portName = Constants.extensionPortNameBase+boundTabId.toString();
+		const extensionPort = Browser.runtime.connect({name: portName});
 
-		contentPort.onMessage.addListener((chatMessage: Types.ChatMessage | undefined) =>
+		extensionPort.onMessage.addListener((message: Types.IpcMessage) =>
 		{
-			// If this is a reset message (undefined was passed), clear the state.
-			if(!chatMessage)
+			switch(message.type)
 			{
-				this.resetState();
-				return;
+				case 'Reset': this.reset(); break;
+				case 'Orphaned': window.close(); break;
+				case 'Title': this.boundTabTitleSubject.next(message.data as string); break;
+				case 'Chat Message': this.addChatMessage(message.data as Types.ChatMessage);
 			}
-
-			// Return if the chat message is a duplicate.
-			const hash = Hash(chatMessage);
-			if(this.chatMessageHashes.has(hash)) return;
-			this.chatMessageHashes.add(hash);
-
-			// Otherwise, add the chat message.
-			chatMessage.index = this.index;
-			this.chatMessages.set(this.index, chatMessage);
-
-			// Add the chat message index to the appropriate arrays.
-			this.addChatMessageIndex(this.generalChatMessageIndicies, true);
-			if(this.page === 'General') this.updateSubject.next();
-
-			if(chatMessage.type !== 'Default')
-			{
-				this.addChatMessageIndex(this.superchatMessageIndicies);
-				if(this.page === 'Superchat') this.updateSubject.next();
-			}
-
-			if(chatMessage.isModerator)
-			{
-				this.addChatMessageIndex(this.moderatorChatMessageIndicies);
-				if(this.page === 'Moderator') this.updateSubject.next();
-			}
-
-			if(chatMessage.isForeign)
-			{
-				this.addChatMessageIndex(this.foreignChatMessageIndicies, true);
-				if(this.page === 'Foreign') this.updateSubject.next();
-			}
-
-			if(this.containsCustomQuery(chatMessage))
-			{
-				this.addChatMessageIndex(this.customChatMessageIndicies, true);
-				if(this.page === 'Custom') this.updateSubject.next();
-			}
-
-			++this.index;
 		});
 	}
 
@@ -119,8 +87,17 @@ export class StateService
 	}
 
 
+	// Gets a chat message by index.
+	private getChatMessage(chatMessageIndex: number): Types.ChatMessage
+	{
+		const chatMessage = this.chatMessages.get(chatMessageIndex);
+		if(!chatMessage) throw new Error('Could not get a chat message by index.');
+		return chatMessage;
+	}
+
+
 	// Resets the state.
-	private resetState(): void
+	private reset(): void
 	{
 		this.chatMessages.clear();
 		this.chatMessageHashes.clear();
@@ -135,12 +112,47 @@ export class StateService
 	}
 
 
-	// Gets a chat message by index.
-	private getChatMessage(chatMessageIndex: number): Types.ChatMessage
+	// Adds the given chat message.
+	private addChatMessage(chatMessage: Types.ChatMessage): void
 	{
-		const chatMessage = this.chatMessages.get(chatMessageIndex);
-		if(!chatMessage) throw new Error('Could not get a chat message by index.');
-		return chatMessage;
+		// Return if the chat message is a duplicate.
+		const hash = Hash(chatMessage);
+		if(this.chatMessageHashes.has(hash)) return;
+		this.chatMessageHashes.add(hash);
+
+		// Otherwise, add the chat message.
+		chatMessage.index = this.index;
+		this.chatMessages.set(this.index, chatMessage);
+
+		// Add the chat message index to the appropriate arrays.
+		this.addChatMessageIndex(this.generalChatMessageIndicies, true);
+		if(this.page === 'General') this.updateSubject.next();
+
+		if(chatMessage.type !== 'Default')
+		{
+			this.addChatMessageIndex(this.superchatMessageIndicies);
+			if(this.page === 'Superchat') this.updateSubject.next();
+		}
+
+		if(chatMessage.isModerator)
+		{
+			this.addChatMessageIndex(this.moderatorChatMessageIndicies);
+			if(this.page === 'Moderator') this.updateSubject.next();
+		}
+
+		if(chatMessage.isForeign)
+		{
+			this.addChatMessageIndex(this.foreignChatMessageIndicies, true);
+			if(this.page === 'Foreign') this.updateSubject.next();
+		}
+
+		if(this.containsCustomQuery(chatMessage))
+		{
+			this.addChatMessageIndex(this.customChatMessageIndicies, true);
+			if(this.page === 'Custom') this.updateSubject.next();
+		}
+
+		++this.index;
 	}
 
 

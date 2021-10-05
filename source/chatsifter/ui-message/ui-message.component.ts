@@ -10,20 +10,20 @@ import {ChangeDetectorRef, Component} from '@angular/core';
 import type {Subscription} from 'rxjs';
 
 import type * as Types from '../types';
-import {MessageService} from '../services/message.service';
+import {UiMessageService} from '../services/ui-message.service';
 
 
 @Component
 ({
-	selector: 'chatsifter-message',
-	templateUrl: './message.component.html',
-	styleUrls: ['./message.component.scss']
+	selector: 'chatsifter-ui-message',
+	templateUrl: './ui-message.component.html',
+	styleUrls: ['./ui-message.component.scss']
 })
 
-export class MessageComponent implements OnInit, OnDestroy
+export class UiMessageComponent implements OnInit, OnDestroy
 {
 	public message = '';
-	public type: Types.MessageType = 'Normal';
+	public type: Types.UiMessageType = 'Normal';
 	public visible = false;
 
 	private subscription?: Subscription;
@@ -32,15 +32,15 @@ export class MessageComponent implements OnInit, OnDestroy
 
 
 	// Constructor.
-	public constructor(private readonly messageService: MessageService,
+	public constructor(private readonly uiMessageService: UiMessageService,
 		private readonly changeDetectorRef: ChangeDetectorRef){}
 
 
 	// Initializer.
 	public ngOnInit(): void
 	{
-		this.subscription = this.messageService.messages.asObservable()
-			.subscribe((messageData) => { this.messageCallback(messageData); });
+		this.subscription = this.uiMessageService.messages.asObservable()
+			.subscribe((uiMessageData) => { this.messageCallback(uiMessageData); });
 	}
 
 
@@ -57,7 +57,7 @@ export class MessageComponent implements OnInit, OnDestroy
 
 
 	// Message callback.
-	private messageCallback(message: Types.Message): void
+	private messageCallback(message: Types.UiMessage): void
 	{
 		// If a message is visible, close it and wait for it to fade out before
 		// calling createMessage(). Otherwise, call createMessage() right away.
@@ -70,7 +70,7 @@ export class MessageComponent implements OnInit, OnDestroy
 
 
 	// Creates the given message.
-	private createMessage(message: Types.Message): void
+	private createMessage(message: Types.UiMessage): void
 	{
 		this.message = message.message;
 		this.duration = message.duration*1000;

@@ -15,7 +15,7 @@ import * as Constants from '../constants';
 import * as Types from '../types';
 import * as Animations from '../animations';
 import {StateService} from '../services/state.service';
-import {MessageService} from '../services/message.service';
+import {UiMessageService} from '../services/ui-message.service';
 
 
 @Component
@@ -32,13 +32,14 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 
 	public autoscroll = true;
 	public chatMessages: Types.ChatMessage[] = [];
+	public constants = Constants;
 
 
 	// Constructor.
 	public constructor(public readonly stateService: StateService,
 		private readonly changeDetectorRef: ChangeDetectorRef,
 		private readonly httpClient: HttpClient,
-		private readonly messageService: MessageService){}
+		private readonly uiMessageService: UiMessageService){}
 
 
 	// Initializer.
@@ -119,7 +120,7 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 				if(token.type === 'Text' && token.text)
 				{
 					// Reduce multiple 'w' into one (JP translation).
-					const text = token.text.replaceAll(/w{2+}/g, 'w');
+					const text = token.text.replaceAll(/w{2,}/g, 'w');
 					parameters = parameters.append('text', text);
 				}
 
@@ -149,7 +150,7 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 			message.showTranslation = false;
 			message.translationStatus = 'Untranslated';
 			this.changeDetectorRef.detectChanges();
-			this.messageService.error(new Error('Translation failed. Make sure '+
+			this.uiMessageService.error(new Error('Translation failed. Make sure '+
 				'you set the DeepL key in the options page correctly.'));
 		}
 	}

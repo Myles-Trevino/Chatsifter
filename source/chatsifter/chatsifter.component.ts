@@ -5,9 +5,11 @@
 */
 
 
-import {Component, OnInit} from '@angular/core';
+import {Component, ChangeDetectorRef, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 
 import * as Types from './types';
+import * as Constants from './constants';
 import * as Animations from './animations';
 import {StateService} from './services/state.service';
 
@@ -22,12 +24,36 @@ import {StateService} from './services/state.service';
 
 export class ChatsifterComponent implements OnInit
 {
+	public boundTabTitle = Constants.defaultTabTitle;
+
+
 	// Constructor.
-	public constructor(public readonly stateService: StateService){}
+	public constructor(public readonly stateService: StateService,
+		private readonly changeDetectorRef: ChangeDetectorRef,
+		private readonly activatedRoute: ActivatedRoute){}
 
 
 	// Initializer.
-	public ngOnInit(): void { this.stateService.initialize(); }
+	public ngOnInit(): void
+	{
+		// Subscribe to bound tab title changes.
+		this.stateService.boundTabTitleSubject.subscribe((boundTabTitle) =>
+		{
+			this.boundTabTitle = boundTabTitle;
+			this.changeDetectorRef.detectChanges();
+		});
+
+		// When the query parameters have changed, if the query
+		// parameters are populated, initialize the state service.
+		this.activatedRoute.queryParamMap.subscribe((queryParamMap) =>
+		{
+			const boundTabId = queryParamMap.get(Constants.boundTabIdQueryParamKey);
+			const boundTabTitle = queryParamMap.get(Constants.boundTabTitleQueryParamKey);
+
+			if(boundTabId && boundTabTitle) this.stateService.initialize(
+				Number.parseInt(boundTabId), boundTabTitle);
+		});
+	}
 
 
 	// Sets the page.

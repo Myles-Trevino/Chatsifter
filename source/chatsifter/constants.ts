@@ -5,16 +5,21 @@
 */
 
 
-export const version = '1.2.1';
+export const version = '1.3.0';
 export const maximumInitializationAttempts = 10;
 export const maximumChatMessages = 256;
 export const scrollDelay = 0.16;
-export const autoscrollMargin = 10;
+export const autoscrollMargin = 100;
+export const maximumAuthorNameLength = 18;
 
 export const deepLApiUrl = 'https://api-free.deepl.com/v2/translate';
 export const deepLProUrl = 'https://www.deepl.com/pro';
 export const laventhUrl = 'https://laventh.com';
 export const githubUrl = 'https://github.com/Myles-Trevino/Chatsifter';
+export const youtubeVideoUrlQuery = 'youtube.com/watch?v=';
+export const boundTabIdQueryParamKey = 'boundTabId';
+export const boundTabTitleQueryParamKey = 'boundTabTitle';
+export const defaultTabTitle = 'None';
 
 export const chatFrameTag = 'ytd-live-chat-frame';
 export const defaultChatMessageTag = 'yt-live-chat-text-message-renderer';
@@ -24,7 +29,7 @@ export const superchatColorPrefix = '--yt-live-chat-paid-message-primary-color:'
 export const badgeTag = 'yt-live-chat-author-badge-renderer';
 
 export const contentPortName = 'Content Script Port';
-export const extensionPortName = 'Extension Port';
+export const extensionPortNameBase = 'Extension Port ';
 
 export const savedStateKey = 'savedState';
 

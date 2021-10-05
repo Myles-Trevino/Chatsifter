@@ -14,9 +14,9 @@ import {OptionsComponent} from './options/options.component';
 
 const routes: Routes =
 [
-	{path: '', redirectTo: 'main', pathMatch: 'full'},
 	{path: 'main', component: MainComponent},
-	{path: 'options', component: OptionsComponent}
+	{path: 'options', component: OptionsComponent},
+	{path: '**', redirectTo: 'main'}
 ];
 
 @NgModule
