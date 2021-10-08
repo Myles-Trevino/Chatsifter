@@ -9,7 +9,6 @@ import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 
 import Browser from 'webextension-polyfill';
-import Hash from 'object-hash';
 
 import * as Constants from '../constants';
 import * as Types from '../types';
@@ -21,25 +20,28 @@ export class StateService
 {
 	public updateSubject: Subject<void> = new Subject();
 	public pageSubject: Subject<Types.Page> = new Subject();
-	public boundTabTitleSubject: Subject<string> = new Subject();
+	public boundTabTitleSubject: Subject<void> = new Subject();
 	public page = Types.defaultPage;
 	public savedState: Types.SavedState = Types.defaultSavedState;
+	public boundTabTitle = '';
 
 	private readonly chatMessages: Map<number, Types.ChatMessage> = new Map();
 	private readonly chatMessageHashes: Set<string> = new Set();
+	private readonly modifiedPages: Set<Types.Page> = new Set();
 	private index = 0;
 	private generalChatMessageIndicies: number[] = [];
 	private superchatMessageIndicies: number[] = [];
 	private moderatorChatMessageIndicies: number[] = [];
 	private foreignChatMessageIndicies: number[] = [];
 	private customChatMessageIndicies: number[] = [];
+	private previousTime = Number.NEGATIVE_INFINITY;
 
 
 	// Initializer.
 	public initialize(boundTabId: number, boundTabTitle: string): void
 	{
+		this.setBoundTabTitle(boundTabTitle);
 		console.log('Bound to tab:', boundTabId, boundTabTitle);
-		this.boundTabTitleSubject.next(boundTabTitle);
 
 		// Load the saved state.
 		const savedState = localStorage.getItem(Constants.savedStateKey);
@@ -56,7 +58,7 @@ export class StateService
 			{
 				case 'Reset': this.reset(); break;
 				case 'Orphaned': window.close(); break;
-				case 'Title': this.boundTabTitleSubject.next(message.data as string); break;
+				case 'Title': this.setBoundTabTitle(message.data as string); break;
 				case 'Chat Message': this.addChatMessage(message.data as Types.ChatMessage);
 			}
 		});
@@ -101,6 +103,7 @@ export class StateService
 	{
 		this.chatMessages.clear();
 		this.chatMessageHashes.clear();
+		this.modifiedPages.clear();
 		this.index = 0;
 		this.generalChatMessageIndicies = [];
 		this.superchatMessageIndicies = [];
@@ -112,47 +115,92 @@ export class StateService
 	}
 
 
+	// Sets the bound tab title.
+	private setBoundTabTitle(boundTabTitle: string): void
+	{
+		// Reset the state on stream changes.
+		if(this.boundTabTitle !== boundTabTitle) this.reset();
+		this.boundTabTitle = boundTabTitle;
+
+		// Update the title subject.
+		this.boundTabTitleSubject.next();
+	}
+
+
 	// Adds the given chat message.
 	private addChatMessage(chatMessage: Types.ChatMessage): void
 	{
-		// Return if the chat message is a duplicate.
-		const hash = Hash(chatMessage);
-		if(this.chatMessageHashes.has(hash)) return;
-		this.chatMessageHashes.add(hash);
-
-		// Otherwise, add the chat message.
-		chatMessage.index = this.index;
-		this.chatMessages.set(this.index, chatMessage);
-
-		// Add the chat message index to the appropriate arrays.
-		this.addChatMessageIndex(this.generalChatMessageIndicies, true);
-		if(this.page === 'General') this.updateSubject.next();
-
-		if(chatMessage.type !== 'Default')
+		// Check for time discrepancies.
+		// Some special chats from before the seek time are replayed,
+		// so only check for time discrepancies with default chats.
+		if(chatMessage.type === 'Default' && chatMessage.time < this.previousTime)
 		{
-			this.addChatMessageIndex(this.superchatMessageIndicies);
-			if(this.page === 'Superchat') this.updateSubject.next();
+			// If there is a backwards seek, delete messages with
+			// timestamps later than the seek position.
+			for(const [futureChatMessageIndex, futureChatMessage] of this.chatMessages)
+			{
+				if(futureChatMessage.time <= chatMessage.time) continue;
+
+				for(const pageType of this.getPageTypes(futureChatMessage))
+				{
+					this.modifiedPages.add(pageType);
+					const indexArray = this.getChatMessageIndices(pageType);
+					this.removeChatMessageIndex(indexArray, futureChatMessageIndex);
+				}
+
+				this.chatMessageHashes.delete(this.hashChatMessage(futureChatMessage));
+				this.chatMessages.delete(futureChatMessageIndex);
+			}
 		}
 
-		if(chatMessage.isModerator)
+		if(chatMessage.type === 'Default') this.previousTime = chatMessage.time;
+
+		// Add the chat message if it is not a duplicate.
+		const hash = this.hashChatMessage(chatMessage);
+
+		if(!this.chatMessageHashes.has(hash))
 		{
-			this.addChatMessageIndex(this.moderatorChatMessageIndicies);
-			if(this.page === 'Moderator') this.updateSubject.next();
+			this.chatMessageHashes.add(hash);
+
+			// Otherwise, add the chat message.
+			chatMessage.index = this.index;
+			this.chatMessages.set(this.index, chatMessage);
+
+			// For each page type of the chat message...
+			for(const pageType of this.getPageTypes(chatMessage))
+			{
+				// Add the page type to the modified pages array.
+				this.modifiedPages.add(pageType);
+
+				// Add the chat message's index to the appropriate array.
+				const limit = (pageType !== 'Superchat');
+				this.addChatMessageIndex(this.getChatMessageIndices(pageType), limit);
+			}
+
+			// Increment the index.
+			++this.index;
 		}
 
-		if(chatMessage.isForeign)
-		{
-			this.addChatMessageIndex(this.foreignChatMessageIndicies, true);
-			if(this.page === 'Foreign') this.updateSubject.next();
-		}
+		// Update if appropriate.
+		if(this.modifiedPages.has(this.page)) this.updateSubject.next();
+		this.modifiedPages.clear();
+	}
 
-		if(this.containsCustomQuery(chatMessage))
-		{
-			this.addChatMessageIndex(this.customChatMessageIndicies, true);
-			if(this.page === 'Custom') this.updateSubject.next();
-		}
 
-		++this.index;
+	// Hashes the given chat message.
+	private hashChatMessage(chatMessage: Types.ChatMessage): string
+	{ return chatMessage.timestamp+chatMessage.authorName; }
+
+
+	// Gets the page types of the chat message.
+	private getPageTypes(chatMessage: Types.ChatMessage): Types.Page[]
+	{
+		const types: Types.Page[] = ['General'];
+		if(chatMessage.type !== 'Default') types.push('Superchat');
+		if(chatMessage.isModerator) types.push('Moderator');
+		if(chatMessage.isForeign) types.push('Foreign');
+		if(this.containsCustomQuery(chatMessage)) types.push('Custom');
+		return types;
 	}
 
 
@@ -187,17 +235,26 @@ export class StateService
 	}
 
 
-	// Gets the chat message indicies for the current page.
-	private getChatMessageIndices(): number[]
+	// Removes the given index from the given array.
+	private removeChatMessageIndex(chatMessageIndicies: number[],
+		chatMessageIndex: number): void
 	{
-		switch(this.page)
+		const removalIndex = chatMessageIndicies.indexOf(chatMessageIndex);
+		chatMessageIndicies.splice(removalIndex, 1);
+	}
+
+
+	// Gets the chat message indicies for the given page.
+	private getChatMessageIndices(page = this.page): number[]
+	{
+		switch(page)
 		{
 			case 'General': return this.generalChatMessageIndicies;
 			case 'Superchat': return this.superchatMessageIndicies;
 			case 'Foreign': return this.foreignChatMessageIndicies;
 			case 'Moderator': return this.moderatorChatMessageIndicies;
 			case 'Custom': return this.customChatMessageIndicies;
-			default: return [];
+			default: throw new Error('Invalid page type.');
 		}
 	}
 

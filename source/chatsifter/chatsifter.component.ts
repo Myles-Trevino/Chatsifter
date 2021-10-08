@@ -24,9 +24,6 @@ import {StateService} from './services/state.service';
 
 export class ChatsifterComponent implements OnInit
 {
-	public boundTabTitle = Constants.defaultTabTitle;
-
-
 	// Constructor.
 	public constructor(public readonly stateService: StateService,
 		private readonly changeDetectorRef: ChangeDetectorRef,
@@ -37,11 +34,8 @@ export class ChatsifterComponent implements OnInit
 	public ngOnInit(): void
 	{
 		// Subscribe to bound tab title changes.
-		this.stateService.boundTabTitleSubject.subscribe((boundTabTitle) =>
-		{
-			this.boundTabTitle = boundTabTitle;
-			this.changeDetectorRef.detectChanges();
-		});
+		this.stateService.boundTabTitleSubject.subscribe(
+			() => { this.changeDetectorRef.detectChanges(); });
 
 		// When the query parameters have changed, if the query
 		// parameters are populated, initialize the state service.

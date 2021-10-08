@@ -5,12 +5,13 @@
 */
 
 
-export const version = '1.3.0';
+export const version = '1.3.1';
 export const maximumInitializationAttempts = 10;
 export const maximumChatMessages = 256;
 export const scrollDelay = 0.16;
 export const autoscrollMargin = 100;
 export const maximumAuthorNameLength = 18;
+export const updateDelay = 0;
 
 export const deepLApiUrl = 'https://api-free.deepl.com/v2/translate';
 export const deepLProUrl = 'https://www.deepl.com/pro';
@@ -25,7 +26,7 @@ export const chatFrameTag = 'ytd-live-chat-frame';
 export const defaultChatMessageTag = 'yt-live-chat-text-message-renderer';
 export const membershipMessageTag = 'yt-live-chat-membership-item-renderer';
 export const superchatMessageTag = 'yt-live-chat-paid-message-renderer';
-export const superchatColorPrefix = '--yt-live-chat-paid-message-primary-color:';
+export const superchatStickerMessageTag = 'yt-live-chat-paid-sticker-renderer';
 export const badgeTag = 'yt-live-chat-author-badge-renderer';
 
 export const contentPortName = 'Content Script Port';

@@ -47,7 +47,9 @@ export type UiMessage =
 
 
 // Chat message.
-export type ChatMessageType = 'Default' | 'Membership' | 'Superchat';
+export type ChatMessageType =
+	'Default' | 'Membership' | 'Superchat' | 'Sticker Superchat';
+
 export const defaultChatMessageType: ChatMessageType = 'Default';
 
 export type TranslationStatus = 'Untranslated' | 'Translating' | 'Done';
@@ -68,6 +70,7 @@ export type ChatMessage =
 	superchatColor: string;
 	authorPhoto: string;
 	timestamp: string;
+	time: number;
 	authorName: string;
 	superchatAmount: string;
 	membershipDuration: string;
@@ -77,6 +80,7 @@ export type ChatMessage =
 	isModerator: boolean;
 	isOwner: boolean;
 	tokens: ChatToken[];
+	stickerUrl?: string;
 	translationStatus: TranslationStatus;
 	showTranslation: boolean;
 	isForeign: boolean;

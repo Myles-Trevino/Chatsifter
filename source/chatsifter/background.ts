@@ -12,17 +12,22 @@ import * as Constants from './constants';
 
 
 const extensionPorts: Map<string, Browser.Runtime.Port> = new Map();
+const contentPorts: Map<number, Browser.Runtime.Port> = new Map();
 let currentTabTitle = Constants.defaultTabTitle;
 
 
 // Listen for active tab switches.
-Browser.tabs.onActivated.addListener(
-	(activeInfo) => { updateCallback(activeInfo.tabId); });
+Browser.tabs.onActivated.addListener((activeInfo) => { urlCallback(activeInfo.tabId); });
 
 
-// Listen for URL changes.
+// Listen for tab updates.
+// Title changes are delayed on navigation to new pages, but do not trigger on history
+// navigation, so title must be checked for both on URL changes and separately.
 Browser.tabs.onUpdated.addListener((tabId, changeInfo) =>
-{ if(changeInfo.status === 'complete') updateCallback(tabId); });
+{
+	if(changeInfo.status === 'complete') urlCallback(tabId);
+	if(changeInfo.title) titleCallback(tabId, changeInfo.title);
+});
 
 
 // Listen for tab closes.
@@ -30,34 +35,39 @@ Browser.tabs.onRemoved.addListener((tabId) =>
 {
 	// Notify the extension instance bound to the closed tab that it has been orphaned.
 	sendExtensionMessage(tabId, {type: 'Orphaned'});
+	console.log('Tab closed: ', tabId);
 });
 
 
-// Update (tab or URL change) callback.
-// The content script cannot be injected via the manifest because YouTube
-// is a single page application and thus URL changes are not registered normally.
-async function updateCallback(tabId?: number): Promise<void>
+// URL change callback.
+async function urlCallback(tabId?: number): Promise<void>
 {
 	if(tabId === undefined) throw new Error('Tab ID not provided.');
 
-	// Update the title of the extension instance bound to the tab.
-	const currentTab = await Browser.tabs.get(tabId);
-	currentTabTitle = currentTab.title ?? Constants.defaultTabTitle;
-	sendExtensionMessage(tabId, {type: 'Title', data: currentTabTitle});
+	// Get the tab's title.
+	const tab = await Browser.tabs.get(tabId);
+	titleCallback(tabId, tab.title ?? Constants.defaultTabTitle);
 
-	// Otherwise, inject the content script.
-	console.log('Tab update:', tabId, '. Title: ', currentTabTitle);
-
-	// Set the extension instance bound to this tab to
-	// inactive if this is not a YouTube video URL.
-	const url = (await Browser.tabs.get(tabId)).url;
+	// Return if this is not a YouTube video URL.
+	const url = tab.url;
+	console.log('URL update:', tabId, url);
 	if(!url || !url.includes(Constants.youtubeVideoUrlQuery)) return;
 
 	// Otherwise, inject the content script.
 	console.log('Injecting into tab ID:', tabId, '. Title: ', currentTabTitle);
+	contentPorts.get(tabId)?.postMessage('Reinject');
 
 	await Browser.tabs.executeScript(tabId, {file: 'content.js'});
 	await Browser.tabs.executeScript(tabId, {file: 'runtime.js'});
+}
+
+
+// Title change callback.
+function titleCallback(tabId: number, title: string): void
+{
+	currentTabTitle = title;
+	console.log('Title change: ', tabId, currentTabTitle);
+	sendExtensionMessage(tabId, {type: 'Title', data: currentTabTitle});
 }
 
 
@@ -71,17 +81,13 @@ Browser.runtime.onConnect.addListener((port) =>
 	// If this is a content script connection request...
 	if(port.name === Constants.contentPortName)
 	{
-		console.log('Connected:', port.name);
+		// Save the port.
+		contentPorts.set(messageTabId, port);
+		console.log('Connected:', port.name, messageTabId);
 
 		// Forward messages to the corresponding extension port.
 		port.onMessage.addListener((message: Types.IpcMessage) =>
-		{
-			// console.log('Message from tab ID:', messageTabId);
-			sendExtensionMessage(messageTabId, message);
-
-			extensionPorts.get(Constants.extensionPortNameBase+
-				messageTabId.toString())?.postMessage(message);
-		});
+		{ sendExtensionMessage(messageTabId, message); });
 
 		// Remove the port and orphan the bound extension instance on disconnect.
 		port.onDisconnect.addListener(() =>
@@ -114,6 +120,8 @@ async function extensionClickCallback(tab: Browser.Tabs.Tab): Promise<void>
 		throw new Error('Could not get the tab ID.');
 
 	// Create an extension instance.
+	console.log('New extension instance:', tab.id, tab.title);
+
 	await Browser.windows.create
 	({
 		url: `index.html?${Constants.boundTabIdQueryParamKey}=${tab.id.toString()}`+
