@@ -13,6 +13,7 @@ import * as Constants from './constants';
 
 const extensionPorts: Map<string, Browser.Runtime.Port> = new Map();
 const contentPorts: Map<number, Browser.Runtime.Port> = new Map();
+const activeTabs: Map<number, string> = new Map();
 let currentTabTitle = Constants.defaultTabTitle;
 
 
@@ -25,7 +26,7 @@ Browser.tabs.onActivated.addListener((activeInfo) => { urlCallback(activeInfo.ta
 // navigation, so title must be checked for both on URL changes and separately.
 Browser.tabs.onUpdated.addListener((tabId, changeInfo) =>
 {
-	if(changeInfo.status === 'complete') urlCallback(tabId);
+	if(changeInfo.status === 'complete') urlCallback(tabId, true);
 	if(changeInfo.title) titleCallback(tabId, changeInfo.title);
 });
 
@@ -40,7 +41,7 @@ Browser.tabs.onRemoved.addListener((tabId) =>
 
 
 // URL change callback.
-async function urlCallback(tabId?: number): Promise<void>
+async function urlCallback(tabId?: number, force = false): Promise<void>
 {
 	if(tabId === undefined) throw new Error('Tab ID not provided.');
 
@@ -50,23 +51,41 @@ async function urlCallback(tabId?: number): Promise<void>
 
 	// Return if this is not a YouTube video URL.
 	const url = tab.url;
-	console.log('URL update:', tabId, url);
-	if(!url || !url.includes(Constants.youtubeVideoUrlQuery)) return;
+	if(!url || !url.includes(Constants.youtubeVideoUrlQuery))
+	{
+		activeTabs.delete(tabId);
+		return;
+	}
 
-	// Otherwise, inject the content script.
-	console.log('Injecting into tab ID:', tabId, '. Title: ', currentTabTitle);
-	contentPorts.get(tabId)?.postMessage('Reinject');
+	// Return if the script has already been injected unless forced.
+	if(!force && activeTabs.get(tabId) === url) return;
 
-	await Browser.tabs.executeScript(tabId, {file: 'content.js'});
-	await Browser.tabs.executeScript(tabId, {file: 'runtime.js'});
+	console.log('Update:', tabId, url);
+	activeTabs.set(tabId, url);
+
+	// If the script has already been injected, attempt content script reinitialization.
+	const contentPortId = contentPorts.get(tabId);
+	try
+	{
+		if(!contentPortId) throw new Error();
+		contentPortId.postMessage('Reinitialize');
+	}
+
+	// If reinitialization is not viable, inject the content script.
+	catch(error: unknown)
+	{
+		console.log('Injecting into tab ID:', tabId, '. Title: ', currentTabTitle);
+		await Browser.tabs.executeScript(tabId, {file: 'content.js'});
+		await Browser.tabs.executeScript(tabId, {file: 'runtime.js'});
+	}
 }
 
 
 // Title change callback.
 function titleCallback(tabId: number, title: string): void
 {
+	if(currentTabTitle === title) return;
 	currentTabTitle = title;
-	console.log('Title change: ', tabId, currentTabTitle);
 	sendExtensionMessage(tabId, {type: 'Title', data: currentTabTitle});
 }
 
@@ -91,7 +110,10 @@ Browser.runtime.onConnect.addListener((port) =>
 
 		// Remove the port and orphan the bound extension instance on disconnect.
 		port.onDisconnect.addListener(() =>
-		{ console.log('Disconnected:', port.name); });
+		{
+			activeTabs.delete(messageTabId);
+			console.log('Disconnected:', port.name);
+		});
 	}
 
 	// If this is an extension connection request...

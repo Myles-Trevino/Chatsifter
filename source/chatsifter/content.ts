@@ -22,17 +22,7 @@ inject();
 
 function inject(): void
 {
-	// Do not inject if already injected.
-	const injectionTag = 'chatsifter-injected';
-	if(document.querySelector(injectionTag))
-	{
-		console.log('Chatsifter: Already injected.');
-		return;
-	}
-
-	document.body.appendChild(document.createElement(injectionTag));
 	console.log('Chatsifter: Content script injected.');
-
 
 	// Establish a message connection to the background script.
 	contentPort = Browser.runtime.connect({name: Constants.contentPortName});

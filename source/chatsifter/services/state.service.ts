@@ -148,8 +148,16 @@ export class StateService
 					this.removeChatMessageIndex(indexArray, futureChatMessageIndex);
 				}
 
-				this.chatMessageHashes.delete(this.hashChatMessage(futureChatMessage));
 				this.chatMessages.delete(futureChatMessageIndex);
+			}
+
+			for(const hash of this.chatMessageHashes)
+			{
+				const time = Number.parseInt(hash.substring(0, hash.indexOf(' ')));
+				if(time > chatMessage.time)
+				{
+					this.chatMessageHashes.delete(hash);
+				}
 			}
 		}
 
@@ -189,7 +197,7 @@ export class StateService
 
 	// Hashes the given chat message.
 	private hashChatMessage(chatMessage: Types.ChatMessage): string
-	{ return chatMessage.timestamp+chatMessage.authorName; }
+	{ return `${chatMessage.time} ${chatMessage.authorName}`; }
 
 
 	// Gets the page types of the chat message.
@@ -197,7 +205,7 @@ export class StateService
 	{
 		const types: Types.Page[] = ['General'];
 		if(chatMessage.type !== 'Default') types.push('Superchat');
-		if(chatMessage.isModerator) types.push('Moderator');
+		if(chatMessage.isModerator || chatMessage.isOwner) types.push('Moderator');
 		if(chatMessage.isForeign) types.push('Foreign');
 		if(this.containsCustomQuery(chatMessage)) types.push('Custom');
 		return types;
