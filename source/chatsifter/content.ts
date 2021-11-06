@@ -13,7 +13,6 @@ import * as Constants from './constants';
 
 let contentPort: Browser.Runtime.Port | undefined = undefined;
 let initializing = false;
-let initializationAttempts = 1;
 let iframeDocumentMutationObserver: MutationObserver | undefined = undefined;
 
 
@@ -31,7 +30,7 @@ function inject(): void
 	contentPort.onMessage.addListener(() =>
 	{
 		console.log('Reinitializing due to reinjection.');
-		setTimeout(() => { reinitialize(); }, 1000);
+		setTimeout(() => { initialize(); }, 1000);
 	});
 
 	// Initialize if the document is already done loading.
@@ -54,16 +53,8 @@ function documentMutationCallback(mutationsList: MutationRecord[]): void
 			if(node.nodeType !== Node.ELEMENT_NODE) continue;
 			const element = (node as HTMLElement);
 			if(element.tagName.toLowerCase() !== Constants.chatFrameTag) continue;
-			reinitialize();
+			initialize();
 		}
-}
-
-
-// Resets the state and initializes.
-function reinitialize(): void
-{
-	initializationAttempts = 1;
-	initialize();
 }
 
 
@@ -74,7 +65,7 @@ function initialize(): void
 	initializing = true;
 
 	// Iframe querying can be unpredictable, so reattempt on failure.
-	console.log(`Chatsifter: Initialization attempt ${initializationAttempts}.`);
+	console.log(`Chatsifter: Attempting initialization...`);
 	let chatIframeDocument: Document | undefined = undefined;
 
 	try
@@ -103,16 +94,9 @@ function initialize(): void
 	// Handle exceptions.
 	catch(error: unknown)
 	{
-		// Limit the number of reattempts.
-		++initializationAttempts;
-		if(initializationAttempts > Constants.maximumInitializationAttempts)
-		{
-			initializing = false;
-			throw new Error('Chatsifter: Too many initialization attempts.');
-		}
-
 		// Reattempt after a delay.
 		console.error('Chatsifter:', error, 'Retrying in 1 second.');
+
 		setTimeout(() =>
 		{
 			initializing = false;
