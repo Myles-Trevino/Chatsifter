@@ -250,8 +250,10 @@ function parseChatMessage(htmlElement: HTMLElement): void
 			{
 				const messageTokenElement = messageNode as HTMLElement;
 				const url = messageTokenElement.getAttribute('src');
+				const alt = messageTokenElement.getAttribute('alt') ?? undefined;
 				if(!url) throw new Error('Could not get an image element\'s URL. ');
-				tokens.push({type: 'Image', url});
+				const isSvg = url.includes('.svg');
+				tokens.push({type: isSvg ? 'Text Emote' : 'Emote', url, alt});
 			}
 		}
 

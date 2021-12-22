@@ -13,6 +13,7 @@ export type SavedState =
 	deepLAuthenticationKey: string;
 	showScrollbar: boolean;
 	smoothScroll: boolean;
+	optimizeEmotes: boolean;
 };
 
 export const defaultSavedState: SavedState =
@@ -21,7 +22,8 @@ export const defaultSavedState: SavedState =
 	regexCustomQuery: false,
 	deepLAuthenticationKey: '',
 	showScrollbar: true,
-	smoothScroll: true
+	smoothScroll: true,
+	optimizeEmotes: true
 };
 
 
@@ -56,10 +58,11 @@ export type TranslationStatus = 'Untranslated' | 'Translating' | 'Done';
 
 export type ChatToken =
 {
-	type: 'Text' | 'Image';
+	type: 'Text' | 'Emote' | 'Text Emote';
 	text?: string;
 	translatedText?: string;
 	url?: string;
+	alt?: string;
 };
 
 export type ChatMessage =

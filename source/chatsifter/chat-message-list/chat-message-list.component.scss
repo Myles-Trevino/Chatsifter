@@ -87,6 +87,13 @@ img
 	word-break: break-word;
 }
 
+.text-emote
+{
+	font-size: var(--image-size);
+	line-height: var(--image-size);
+	vertical-align: middle;
+}
+
 .sticker
 {
 	width: 104px;

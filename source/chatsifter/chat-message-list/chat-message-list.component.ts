@@ -151,7 +151,7 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 			message.translationStatus = 'Untranslated';
 			this.changeDetectorRef.detectChanges();
 			this.uiMessageService.error(new Error('Translation failed. Make sure '+
-				'you set the DeepL key in the options page correctly.'));
+				'the DeepL key in the options page is set correctly.'));
 		}
 	}
 

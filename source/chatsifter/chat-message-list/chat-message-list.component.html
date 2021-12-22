@@ -49,7 +49,8 @@
 
 			<ng-container *ngIf="chatMessage.translationStatus !== 'Translating'">
 			<ng-container *ngFor="let token of chatMessage.tokens; trackBy: tokenTrackBy">
-				<img *ngIf="token.type === 'Image'" class="emote" [src]="token.url">
+				<img *ngIf="token.type === 'Emote' || (!stateService.savedState.optimizeEmotes && token.type === 'Text Emote')" class="emote" [src]="token.url">
+				<span *ngIf="stateService.savedState.optimizeEmotes && token.type === 'Text Emote'" class="text-emote">{{token.alt}}</span>
 				<span *ngIf="token.type === 'Text'" class="text">{{chatMessage.showTranslation ? token.translatedText : token.text}}</span>
 			</ng-container>
 			</ng-container>

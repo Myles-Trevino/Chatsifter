@@ -14,28 +14,35 @@
 
 
 <!-- Show scrollbar. -->
-<div id="options-laventh-tile" class="tile">
+<div class="options-laventh-tile tile">
 	<span>Show Scrollbar</span>
 	<chatsifter-switch [(state)]="stateService.savedState.showScrollbar" (stateChange)="stateService.save()"></chatsifter-switch>
 </div>
 
 
 <!-- Smooth scrolling. -->
-<div id="options-laventh-tile" class="tile">
+<div class="options-laventh-tile tile">
 	<span>Smooth Scrolling</span>
 	<chatsifter-switch [(state)]="stateService.savedState.smoothScroll" (stateChange)="stateService.save()"></chatsifter-switch>
 </div>
 
 
+<!-- Optimize Emotes. -->
+<div class="options-laventh-tile tile">
+	<span>Optimize Emotes</span>
+	<chatsifter-switch [(state)]="stateService.savedState.optimizeEmotes" (stateChange)="stateService.save()"></chatsifter-switch>
+</div>
+
+
 <!-- Regex custom sifting. -->
-<div id="options-laventh-tile" class="tile">
+<div  class="options-laventh-tile tile">
 	<span>Regex Custom Sifting</span>
 	<chatsifter-switch [(state)]="stateService.savedState.regexCustomQuery" (stateChange)="stateService.save()"></chatsifter-switch>
 </div>
 
 
 <!-- Developed by Laventh. -->
-<div id="options-laventh-tile" class="tile">
+<div class="options-laventh-tile tile">
 	<span>Developed by <a [href]="constants.laventhUrl" target="_blank">Laventh</a></span>
 	<a [href]="constants.githubUrl" target="_blank">{{'Version '+constants.version}}</a>
 </div>
