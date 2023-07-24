@@ -11,6 +11,7 @@ export type SavedState =
 	customQuery: string;
 	regexCustomQuery: boolean;
 	deepLAuthenticationKey: string;
+	autotranslate: boolean;
 	showScrollbar: boolean;
 	smoothScroll: boolean;
 	optimizeEmotes: boolean;
@@ -21,6 +22,7 @@ export const defaultSavedState: SavedState =
 	customQuery: '[EN]',
 	regexCustomQuery: false,
 	deepLAuthenticationKey: '',
+	autotranslate: false,
 	showScrollbar: true,
 	smoothScroll: true,
 	optimizeEmotes: true
@@ -91,8 +93,14 @@ export type ChatMessage =
 
 
 // Pages.
-export type Page = 'General' | 'Superchat' |
-'Foreign' | 'Moderator' | 'Custom' | 'Options';
+export type Page =
+	'General' |
+	'Superchat' |
+	'Foreign' |
+	'English' |
+	'Moderator' |
+	'Custom' |
+	'Options';
 
 export const defaultPage: Page = 'General';
 

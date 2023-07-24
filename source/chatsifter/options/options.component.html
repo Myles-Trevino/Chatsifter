@@ -13,6 +13,13 @@
 </div>
 
 
+<!-- Autotranslate. -->
+<div class="options-laventh-tile tile">
+	<span>Autotranslate</span>
+	<chatsifter-switch [(state)]="stateService.savedState.autotranslate" (stateChange)="stateService.save()"></chatsifter-switch>
+</div>
+
+
 <!-- Show scrollbar. -->
 <div class="options-laventh-tile tile">
 	<span>Show Scrollbar</span>

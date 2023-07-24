@@ -7,15 +7,12 @@
 
 import {AfterViewInit, ChangeDetectorRef, Component,
 	OnInit, ViewChild} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
 import {NgScrollbar} from 'ngx-scrollbar';
-import * as Rxjs from 'rxjs';
 
 import * as Constants from '../constants';
 import * as Types from '../types';
 import * as Animations from '../animations';
 import {StateService} from '../services/state.service';
-import {UiMessageService} from '../services/ui-message.service';
 
 
 @Component
@@ -37,9 +34,7 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 
 	// Constructor.
 	public constructor(public readonly stateService: StateService,
-		private readonly changeDetectorRef: ChangeDetectorRef,
-		private readonly httpClient: HttpClient,
-		private readonly uiMessageService: UiMessageService){}
+		private readonly changeDetectorRef: ChangeDetectorRef){}
 
 
 	// Initializer.
@@ -79,81 +74,6 @@ export class ChatMessageListComponent implements OnInit, AfterViewInit
 
 	// Token track by.
 	public tokenTrackBy(index: number): number { return index; }
-
-
-	// Translate the given message.
-	public async translate(message: Types.ChatMessage): Promise<void>
-	{
-		// Toggle translation visibility.
-		message.showTranslation = !message.showTranslation;
-
-		// If the translation is hidden or translation
-		// has been or is being attempted, return.
-		if(!message.showTranslation || message.translationStatus !== 'Untranslated')
-		{
-			this.changeDetectorRef.detectChanges();
-			return;
-		}
-
-		// Otherwise, attempt to translate.
-		try
-		{
-			// Update the translation status.
-			message.translationStatus = 'Translating';
-			this.changeDetectorRef.detectChanges();
-
-			if(!this.stateService.savedState.deepLAuthenticationKey)
-				throw new Error('No DeepL authentication key provided.');
-
-			// Create the initial URL parameters.
-			const initialParameters =
-			{
-				'auth_key': this.stateService.savedState.deepLAuthenticationKey,
-				'source_lang': 'JA',
-				'target_lang': 'EN-US'
-			};
-
-			let parameters = new HttpParams({fromObject: initialParameters});
-
-			// Add each text token as a URL parameter.
-			for(const token of message.tokens)
-				if(token.type === 'Text' && token.text)
-				{
-					// Reduce multiple 'w' into one (JP translation).
-					const text = token.text.replaceAll(/w{2,}/g, 'w');
-					parameters = parameters.append('text', text);
-				}
-
-			// Send the translation request to DeepL.
-			const response = await Rxjs.firstValueFrom(
-				this.httpClient.get<Types.DeepLResponse>(
-					Constants.deepLApiUrl, {params: parameters}));
-
-			// Save the translated text to each text token.
-			let translationTokenIndex = 0;
-
-			for(const token of message.tokens)
-			{
-				if(token.type !== 'Text') continue;
-				token.translatedText = response.translations[translationTokenIndex].text;
-				++translationTokenIndex;
-			}
-
-			// Update the translation status.
-			message.translationStatus = 'Done';
-			this.changeDetectorRef.detectChanges();
-		}
-
-		// Handle errors.
-		catch(error: unknown)
-		{
-			message.showTranslation = false;
-			message.translationStatus = 'Untranslated';
-			this.changeDetectorRef.detectChanges();
-			this.uiMessageService.error(new Error('Translation failed. Make sure '+
-				'the DeepL key in the options page is set correctly.'));
-		}
-	}
 
 
 	// Called when the chat messages have updated.

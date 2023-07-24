@@ -147,7 +147,7 @@ async function extensionClickCallback(tab: Browser.Tabs.Tab): Promise<void>
 	await Browser.windows.create
 	({
 		url: `index.html?${Constants.boundTabIdQueryParamKey}=${tab.id.toString()}`+
-			`&${Constants.boundTabTitleQueryParamKey}=${tab.title}`,
+			`&${Constants.boundTabTitleQueryParamKey}=${encodeURIComponent(tab.title)}`,
 		type: 'popup',
 		width: 400,
 		height: 700

@@ -13,7 +13,7 @@
 <!-- Messages. -->
 <ng-scrollbar [ngClass]="{'hidden-scrollbar': !stateService.savedState.showScrollbar}" [ngStyle]="{'height': chatMessages.length ? '100%' : '0'}" #scrollbar>
 <div id="messages-container">
-	<div *ngFor="let chatMessage of chatMessages; trackBy: messageTrackBy" [class]="{'message': true, 'membership': chatMessage.type === 'Membership', 'superchat': chatMessage.type.includes('Superchat'), 'member': chatMessage.isMember, 'verified': chatMessage.isVerified, 'moderator': chatMessage.isModerator, 'owner': chatMessage.isOwner}" [style]="{'background-color': chatMessage.type.includes('Superchat') ? chatMessage.superchatColor : false}" @fadeInAnimation>
+	<div *ngFor="let chatMessage of chatMessages; trackBy: messageTrackBy" [class]="{'message': true, 'membership': chatMessage.type === 'Membership', 'superchat': chatMessage.type.includes('Superchat'), 'member': chatMessage.isMember, 'verified': chatMessage.isVerified, 'moderator': chatMessage.isModerator, 'owner': chatMessage.isOwner, 'translated': chatMessage.showTranslation}" [style]="{'background-color': chatMessage.type.includes('Superchat') ? chatMessage.superchatColor : false}" @fadeInAnimation>
 
 		<!-- Author photo. -->
 		<img class="author-photo" [src]="chatMessage.authorPhoto">
@@ -60,7 +60,7 @@
 
 			<!-- Translate button. -->
 			<span *ngIf="chatMessage.isForeign" class="translate-button-spacer"></span>
-			<button *ngIf="chatMessage.isForeign" (click)="translate(chatMessage)">{{chatMessage.showTranslation ? 'Original' : 'Translate'}}</button>
+			<button *ngIf="chatMessage.isForeign" (click)="stateService.translate(chatMessage)">{{chatMessage.showTranslation ? 'Original' : 'Translate'}}</button>
 
 		</div>
 
